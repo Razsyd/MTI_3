@@ -1,0 +1,77 @@
+#include "notes.h"
+
+
+int noSound = 0;
+int tempo = 76;
+int melody[] = {
+
+
+
+ // Asa branca - Luiz Gonzaga
+  // Score available at https://musescore.com/user/190926/scores/181370
+
+
+
+ NOTE_G4,8, NOTE_A4,8, NOTE_B4,4, NOTE_D5,4, NOTE_D5,4, NOTE_B4,4,
+  NOTE_C5,4, NOTE_C5,2, NOTE_G4,8, NOTE_A4,8,
+  NOTE_B4,4, NOTE_D5,4, NOTE_D5,4, NOTE_C5,4,
+
+
+
+ NOTE_B4,2, REST,8, NOTE_G4,8, NOTE_G4,8, NOTE_A4,8,
+  NOTE_B4,4, NOTE_D5,4, REST,8, NOTE_D5,8, NOTE_C5,8, NOTE_B4,8,
+  NOTE_G4,4, NOTE_C5,4, REST,8, NOTE_C5,8, NOTE_B4,8, NOTE_A4,8,
+
+
+
+ NOTE_A4,4, NOTE_B4,4, REST,8, NOTE_B4,8, NOTE_A4,8, NOTE_G4,8,
+  NOTE_G4,2, REST,8, NOTE_G4,8, NOTE_G4,8, NOTE_A4,8,
+  NOTE_B4,4, NOTE_D5,4, REST,8, NOTE_D5,8, NOTE_C5,8, NOTE_B4,8,
+
+
+
+ NOTE_G4,4, NOTE_C5,4, REST,8, NOTE_C5,8, NOTE_B4,8, NOTE_A4,8,
+  NOTE_A4,4, NOTE_B4,4, REST,8, NOTE_B4,8, NOTE_A4,8, NOTE_G4,8,
+  NOTE_G4,4, NOTE_F5,8, NOTE_D5,8, NOTE_E5,8, NOTE_C5,8, NOTE_D5,8, NOTE_B4,8,
+
+
+
+ NOTE_C5,8, NOTE_A4,8, NOTE_B4,8, NOTE_G4,8, NOTE_A4,8, NOTE_G4,8, NOTE_E4,8, NOTE_G4,8,
+  NOTE_G4,4, NOTE_F5,8, NOTE_D5,8, NOTE_E5,8, NOTE_C5,8, NOTE_D5,8, NOTE_B4,8,
+  NOTE_C5,8, NOTE_A4,8, NOTE_B4,8, NOTE_G4,8, NOTE_A4,8, NOTE_G4,8, NOTE_E4,8, NOTE_G4,8,
+  NOTE_G4,-2, REST,4
+  
+};
+
+
+
+
+int buzzer = 11;
+int pressureAnalogPin = 0; //pin where our pressure pad is located.
+int pressureReading; //variable for storing our reading
+
+
+
+//Adjust these if required.
+int noPressure = 5; //max value for no pressure on the pad
+int lightPressure = 100; //max value for light pressure on the pad
+int mediumPressure = 200; //max value for medium pressure on the pad
+
+void setup(void) {
+  Serial.begin(9600);
+}
+
+void loop(void) {
+  pressureReading = analogRead(pressureAnalogPin);
+
+delay(100);  
+ while (pressureReading > noPressure) {
+ analogWrite(buzzer, tempo);
+ }
+ 
+ if (pressureReading < noPressure) {
+ analogWrite(buzzer, 0);
+ }
+  
+  }
+   //Serial.println(pressureReading);
