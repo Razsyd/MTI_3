@@ -1,9 +1,16 @@
-void setup() {
-  // put your setup code here, to run once:
+Smart Closet (Insert Name here) by Joanna Ponce, Razniya Syed & Zhiyang Wang
 
-}
+Set-up
 
-void loop() {
-  // put your main code here, to run repeatedly:
+Components
+FSR
+10k ohm resistor
 
-}
+Piezo buzzer
+
+
+Connections
+FSR --5V
+FSR -- A0-- 10k_resistor--GND
+
+Piezo-- 11
