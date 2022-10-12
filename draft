@@ -1,77 +1,107 @@
-#include "notes.h"
+ #include "notes.h";
 
+int fsrAnalogPin = 0; // FSR is connected to analog 0
+//int LEDpin = 11;      // connect Red LED to pin 11 (PWM pin)
+int fsrReading;      // the analog reading from the FSR resistor divider
+//int LEDbrightness;
+int FSRvalue = 0;
 
-int noSound = 0;
+// change this to make the song slower or faster
 int tempo = 76;
+
+// change this to whichever pin you want to use
+int buzzer = 11;
+
+// notes of the moledy followed by the duration.
+// a 4 means a quarter note, 8 an eighteenth , 16 sixteenth, so on
+// !!negative numbers are used to represent dotted notes,
+// so -4 means a dotted quarter note, that is, a quarter plus an eighteenth!!
 int melody[] = {
 
+  // Wiegenlied (Brahms' Lullaby)
+  // Score available at https://www.flutetunes.com/tunes.php?id=54
 
+  NOTE_G4, 4, NOTE_G4, 4, //1
+  NOTE_AS4, -4, NOTE_G4, 8, NOTE_G4, 4,
+  NOTE_AS4, 4, REST, 4, NOTE_G4, 8, NOTE_AS4, 8,
+  NOTE_DS5, 4, NOTE_D5, -4, NOTE_C5, 8,
+  NOTE_C5, 4, NOTE_AS4, 4, NOTE_F4, 8, NOTE_G4, 8,
+  NOTE_GS4, 4, NOTE_F4, 4, NOTE_F4, 8, NOTE_G4, 8,
+  NOTE_GS4, 4, REST, 4, NOTE_F4, 8, NOTE_GS4, 8,
+  NOTE_D5, 8, NOTE_C5, 8, NOTE_AS4, 4, NOTE_D5, 4,
 
- // Asa branca - Luiz Gonzaga
-  // Score available at https://musescore.com/user/190926/scores/181370
+  NOTE_DS5, 4, REST, 4, NOTE_DS4, 8, NOTE_DS4, 8, //8
+  NOTE_DS5, 2, NOTE_C5, 8, NOTE_GS4, 8,
+  NOTE_AS4, 2, NOTE_G4, 8, NOTE_DS4, 8,
+  NOTE_GS4, 4, NOTE_AS4, 4, NOTE_C5, 4,
+  NOTE_AS4, 2, NOTE_DS4, 8, NOTE_DS4, 8,
+  NOTE_DS5, 2, NOTE_C5, 8, NOTE_GS4, 8,
+  NOTE_AS4, 2, NOTE_G4, 8, NOTE_DS4, 8,
+  NOTE_AS4, 4, NOTE_G4, 4, NOTE_DS4, 4,
+  NOTE_DS4, 2
 
-
-
- NOTE_G4,8, NOTE_A4,8, NOTE_B4,4, NOTE_D5,4, NOTE_D5,4, NOTE_B4,4,
-  NOTE_C5,4, NOTE_C5,2, NOTE_G4,8, NOTE_A4,8,
-  NOTE_B4,4, NOTE_D5,4, NOTE_D5,4, NOTE_C5,4,
-
-
-
- NOTE_B4,2, REST,8, NOTE_G4,8, NOTE_G4,8, NOTE_A4,8,
-  NOTE_B4,4, NOTE_D5,4, REST,8, NOTE_D5,8, NOTE_C5,8, NOTE_B4,8,
-  NOTE_G4,4, NOTE_C5,4, REST,8, NOTE_C5,8, NOTE_B4,8, NOTE_A4,8,
-
-
-
- NOTE_A4,4, NOTE_B4,4, REST,8, NOTE_B4,8, NOTE_A4,8, NOTE_G4,8,
-  NOTE_G4,2, REST,8, NOTE_G4,8, NOTE_G4,8, NOTE_A4,8,
-  NOTE_B4,4, NOTE_D5,4, REST,8, NOTE_D5,8, NOTE_C5,8, NOTE_B4,8,
-
-
-
- NOTE_G4,4, NOTE_C5,4, REST,8, NOTE_C5,8, NOTE_B4,8, NOTE_A4,8,
-  NOTE_A4,4, NOTE_B4,4, REST,8, NOTE_B4,8, NOTE_A4,8, NOTE_G4,8,
-  NOTE_G4,4, NOTE_F5,8, NOTE_D5,8, NOTE_E5,8, NOTE_C5,8, NOTE_D5,8, NOTE_B4,8,
-
-
-
- NOTE_C5,8, NOTE_A4,8, NOTE_B4,8, NOTE_G4,8, NOTE_A4,8, NOTE_G4,8, NOTE_E4,8, NOTE_G4,8,
-  NOTE_G4,4, NOTE_F5,8, NOTE_D5,8, NOTE_E5,8, NOTE_C5,8, NOTE_D5,8, NOTE_B4,8,
-  NOTE_C5,8, NOTE_A4,8, NOTE_B4,8, NOTE_G4,8, NOTE_A4,8, NOTE_G4,8, NOTE_E4,8, NOTE_G4,8,
-  NOTE_G4,-2, REST,4
-  
 };
 
+// sizeof gives the number of bytes, each int valsmaue is composed of two bytes (16 bits)
+// there are two values per note (pitch and duration), so for each note there are four bytes
+int notes = sizeof(melody) / sizeof(melody[0]) / 2;
 
+// this calculates the duration of a whole note in ms
+int wholenote = (60000 * 4) / tempo;
 
+int divider = 0, noteDuration = 0;
 
-int buzzer = 11;
-int pressureAnalogPin = 0; //pin where our pressure pad is located.
-int pressureReading; //variable for storing our reading
-
-
-
-//Adjust these if required.
-int noPressure = 5; //max value for no pressure on the pad
-int lightPressure = 100; //max value for light pressure on the pad
-int mediumPressure = 200; //max value for medium pressure on the pad
-
-void setup(void) {
-  Serial.begin(9600);
-}
-
-void loop(void) {
-  pressureReading = analogRead(pressureAnalogPin);
-
-delay(100);  
- while (pressureReading > noPressure) {
- analogWrite(buzzer, tempo);
- }
  
- if (pressureReading < noPressure) {
- analogWrite(buzzer, 0);
- }
+void setup(void) {
+  Serial.begin(9600);   // We'll send debugging information via the Serial monitor
+  pinMode(fsrAnalogPin, INPUT);
+  pinMode(buzzer, OUTPUT);
   
+}
+ 
+void loop(void) {
+
+  
+  //sound
+  // iterate over the notes of the melody.
+  // Remember, the array is twice the number of notes (notes + durations)
+  for (int thisNote = 0; thisNote < notes * 2; thisNote = thisNote + 2) {
+
+    FSRvalue = analogRead(fsrAnalogPin); //reads the FSR and store it in integer
+  //analogWrite(buzzer, tempo); //sets the buzzer duty ratio 
+  Serial.print("Pressure Pad Reading = ");
+  Serial.println(FSRvalue);
+
+
+    // calculates the duration of each note
+    divider = melody[thisNote + 1];
+    if (divider > 0) {
+      // regular note, just proceed
+      noteDuration = (wholenote) / divider;
+    } else if (divider < 0) {
+      // dotted notes are represented with negative durations!!
+      noteDuration = (wholenote) / abs(divider);
+      noteDuration *= 1.5; // increases the duration in half for dotted notes
+    }
+
+    // we only play the note for 90% of the duration, leaving 10% as a pause
+    if(FSRvalue > 0){
+      tone(buzzer, melody[thisNote], noteDuration * 0.9);
+    }
+    // Wait for the specief duration before playing the next note.
+    delay(noteDuration);
+
+    // stop the waveform generation before the next note.
+    noTone(buzzer);
   }
-   //Serial.println(pressureReading);
+
+
+ 
+  // we'll need to change the range from the analog reading (0-1023) down to the range
+  // used by analogWrite (0-255) with map!
+  //buzzer = map(fsrReading, 0, 1023, 0, 255);
+  // LED gets brighter the harder you press
+  //analogWrite(buzzer, tempo);
+ 
+  delay(100);
+}
