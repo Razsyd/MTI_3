@@ -1,0 +1,47 @@
+#include<Servo.h>
+Servo myservo;
+
+int pos = 0;
+int openPos = 90;
+int sensorValue = digitalRead(7);
+int angle = 0;
+
+void setup() {
+  // put your setup code here, to run once:
+  Serial.begin(9600);
+  
+  myservo.attach(9);
+  myservo.write(pos);
+  pinMode(7,INPUT);
+
+}
+
+void sweep (){
+  
+  for (angle = 0; angle < 180; angle++)  
+    {                                  
+      myservo.write(angle);               
+      delay(15);                   
+    } 
+    // now scan back from 180 to 0 degrees
+    for (angle = 180; angle > 0; angle--)
+    {                                
+      myservo.write(angle);           
+      delay(15);       
+    } 
+  }
+
+
+void loop() {
+
+ Serial.println(sensorValue);
+
+  if (digitalRead(7)== LOW) {
+  sweep ();
+   
+    }
+
+  else (digitalRead(7)== HIGH);
+    myservo.write(90);
+    
+    }
