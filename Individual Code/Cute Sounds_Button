@@ -1,0 +1,28 @@
+#include<CuteBuzzerSounds.h>
+
+int button = 2;
+int orangeLED = 6;
+int buzzer = 7;
+
+int sunnyTone[] = {
+  NOTE_A4, NOTE_B4, NOTE_C3
+};
+
+void setup () {
+
+  Serial.begin(9600);
+  
+  pinMode(buzzer, OUTPUT) ;
+  pinMode(orangeLED, OUTPUT);
+  pinMode(button, INPUT);
+
+  cute.init(buzzer);
+
+  
+}
+
+void loop () {
+  if (digitalRead(2) == 0) {
+    cute.play(S_SLEEPING);
+  }
+}
