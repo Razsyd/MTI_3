@@ -21,19 +21,20 @@ void sweep (){
   for (angle = 0; angle < 180; angle++)  
     {                                  
       myservo.write(angle);               
-      delay(15);                   
+      delay(5);                   
     } 
     // now scan back from 180 to 0 degrees
     for (angle = 180; angle > 0; angle--)
     {                                
       myservo.write(angle);           
-      delay(15);       
+      delay(5);       
     } 
   }
 
 
 void loop() {
 
+delay(10);
  Serial.println(sensorValue);
 
   if (digitalRead(7)== LOW) {
@@ -43,5 +44,5 @@ void loop() {
 
   else (digitalRead(7)== HIGH);
     myservo.write(90);
-    
+   delay (100);
     }
